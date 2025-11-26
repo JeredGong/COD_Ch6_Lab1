@@ -3,6 +3,7 @@
 #include <getopt.h>
 
 #include "CycleTimer.h"
+#include "thread_timing.h"
 
 extern void mandelbrotSerial(
     float x0, float y0, float x1, float y1,
@@ -74,6 +75,9 @@ int main(int argc, char** argv) {
     const int height = 900;
     const int maxIterations = 256;
     int numThreads = 2;
+#ifdef ENABLE_THREAD_TIMING
+    int activeView = 1;
+#endif
 
     float x0 = -2.167;
     float x1 = 1.167;
@@ -111,6 +115,9 @@ int main(int argc, char** argv) {
                 float shiftX = shiftXs[viewIndex];
                 float shiftY = shiftYs[viewIndex];
                 scaleAndShift(x0, x1, y0, y1, scaleValue, shiftX, shiftY);
+#ifdef ENABLE_THREAD_TIMING
+                activeView = viewIndex;
+#endif
             } else {
                 fprintf(stderr, "Invalid view index\n");
                 return 1;
@@ -152,6 +159,11 @@ int main(int argc, char** argv) {
     double minThread = 1e30;
     for (int i = 0; i < 5; ++i) {
         double startTime = CycleTimer::currentSeconds();
+#ifdef ENABLE_THREAD_TIMING
+        char label[128];
+        snprintf(label, sizeof(label), "view_%d_iter_%d_threads_%d", activeView, i + 1, numThreads);
+        ThreadTiming::setRunLabel(label);
+#endif
         mandelbrotThread(numThreads, x0, y0, x1, y1, width, height, maxIterations, output_thread);
         double endTime = CycleTimer::currentSeconds();
         minThread = std::min(minThread, endTime - startTime);

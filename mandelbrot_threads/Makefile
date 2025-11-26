@@ -1,6 +1,8 @@
 
 CXX=g++ -m64
-CXXFLAGS=-I../common -Iobjs/ -O3 -Wall
+CXXFLAGS?=
+BASE_CXXFLAGS=-I../common -Iobjs/ -O3 -Wall
+ALL_CXXFLAGS=$(BASE_CXXFLAGS) $(CXXFLAGS)
 
 APP_NAME=mandelbrot
 OBJDIR=objs
@@ -20,16 +22,15 @@ dirs:
 clean:
 		/bin/rm -rf $(OBJDIR) *.ppm *~ $(APP_NAME)
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/mandelbrot.o $(PPM_OBJ)
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/mandelbrot.o $(OBJDIR)/thread_timing.o $(PPM_OBJ)
 
 $(APP_NAME): dirs $(OBJS)
-		$(CXX) $(CXXFLAGS) -o $@ $(OBJS) -lm -lpthread
+	$(CXX) $(ALL_CXXFLAGS) -o $@ $(OBJS) -lm -lpthread
 
 $(OBJDIR)/%.o: %.cpp
-		$(CXX) $< $(CXXFLAGS) -c -o $@
+	$(CXX) $< $(ALL_CXXFLAGS) -c -o $@
 
 $(OBJDIR)/%.o: $(COMMONDIR)/%.cpp
-	$(CXX) $< $(CXXFLAGS) -c -o $@
+	$(CXX) $< $(ALL_CXXFLAGS) -c -o $@
 
 $(OBJDIR)/main.o: $(COMMONDIR)/CycleTimer.h
-
