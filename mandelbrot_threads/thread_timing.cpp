@@ -32,7 +32,7 @@ static GlobalState& state() {
 }
 
 static bool fileHasContent(const std::string& path) {
-    std::FILE* fp = std::fopen(path.c_str(), "r");
+    std::FILE* fp = std::fopen(path.c_str(), "w");
     if (!fp) return false;
     int ch = std::fgetc(fp);
     std::fclose(fp);
